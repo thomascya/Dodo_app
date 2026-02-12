@@ -1,8 +1,18 @@
 import { useCallback } from 'react';
-import { StyleSheet, Text, View, I18nManager } from 'react-native';
+import { View, I18nManager, StyleSheet } from 'react-native';
+import { enableScreens } from 'react-native-screens';
 import { StatusBar } from 'expo-status-bar';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useFonts, Heebo_400Regular, Heebo_700Bold } from '@expo-google-fonts/heebo';
 import * as SplashScreen from 'expo-splash-screen';
+
+// ⚠️ CRITICAL: Disable native screens BEFORE importing navigation components
+// This must happen before ANY navigation imports to prevent Android crash
+enableScreens(false);
+
+// Import navigation components AFTER enableScreens(false)
+import { NavigationContainer } from '@react-navigation/native';
+import BottomTabNavigator from './src/navigation/BottomTabNavigator';
 
 // Force RTL layout for Hebrew
 if (!I18nManager.isRTL) {
@@ -30,30 +40,19 @@ export default function App() {
   }
 
   return (
-    <View style={styles.container} onLayout={onLayoutRootView}>
-      <Text style={styles.title}>DODO</Text>
-      <Text style={styles.subtitle}>קופונים והטבות</Text>
-      <StatusBar style="dark" />
-    </View>
+    <SafeAreaProvider>
+      <View style={styles.container} onLayout={onLayoutRootView}>
+        <StatusBar style="dark" />
+        <NavigationContainer>
+          <BottomTabNavigator />
+        </NavigationContainer>
+      </View>
+    </SafeAreaProvider>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  title: {
-    fontFamily: 'Heebo_700Bold',
-    fontSize: 48,
-    color: '#7C3AED',
-    marginBottom: 8,
-  },
-  subtitle: {
-    fontFamily: 'Heebo_400Regular',
-    fontSize: 18,
-    color: '#6B7280',
   },
 });
