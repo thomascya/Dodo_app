@@ -15,7 +15,8 @@
       "Bash(findstr:*)",
       "Bash(cmd //c \"taskkill /F /PID 24520\")",
       "Bash(npm start)",
-      "Bash(npm start:*)"
+      "Bash(npm start:*)",
+      "Bash(wc:*)"
     ]
   },
   "enabledPlugins": {
