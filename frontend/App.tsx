@@ -13,6 +13,7 @@ enableScreens(false);
 // Import navigation components AFTER enableScreens(false)
 import { NavigationContainer } from '@react-navigation/native';
 import BottomTabNavigator from './src/navigation/BottomTabNavigator';
+import { AuthProvider } from './src/context/AuthContext';
 
 // Force RTL layout for Hebrew
 if (!I18nManager.isRTL) {
@@ -40,14 +41,16 @@ export default function App() {
   }
 
   return (
-    <SafeAreaProvider>
-      <View style={styles.container} onLayout={onLayoutRootView}>
-        <StatusBar style="dark" />
-        <NavigationContainer>
-          <BottomTabNavigator />
-        </NavigationContainer>
-      </View>
-    </SafeAreaProvider>
+    <AuthProvider>
+      <SafeAreaProvider>
+        <View style={styles.container} onLayout={onLayoutRootView}>
+          <StatusBar style="dark" />
+          <NavigationContainer>
+            <BottomTabNavigator />
+          </NavigationContainer>
+        </View>
+      </SafeAreaProvider>
+    </AuthProvider>
   );
 }
 

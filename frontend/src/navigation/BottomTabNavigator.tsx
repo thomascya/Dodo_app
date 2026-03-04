@@ -7,6 +7,7 @@ import HomeStackNavigator from './HomeStackNavigator';
 import FollowingScreen from '../screens/FollowingScreen';
 import AddCouponScreen from '../screens/AddCouponScreen';
 import ProfileScreen from '../screens/ProfileScreen';
+import { useAuth } from '../hooks/useAuth';
 
 export type BottomTabParamList = {
   Home: undefined;
@@ -18,9 +19,8 @@ export type BottomTabParamList = {
 const Tab = createBottomTabNavigator<BottomTabParamList>();
 
 export default function BottomTabNavigator() {
-  // TODO: Replace with real auth check from Supabase (Prompt 9)
-  // Will check: user?.is_influencer && user?.is_verified
-  const userIsInfluencer = false;
+  const { user } = useAuth();
+  const userIsInfluencer = user?.is_influencer && user?.is_verified;
 
   return (
     <Tab.Navigator

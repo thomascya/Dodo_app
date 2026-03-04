@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import { supabase } from '../config/supabase';
+import { getStoreById, getBenefitsByStore, getCouponsByStore, submitReport } from '../services/apiClient';
 import { StoreScreenRouteProp } from '../types/navigation.types';
 import BenefitCard from '../components/BenefitCard';
 import CouponCard from '../components/CouponCard';
@@ -75,54 +75,14 @@ export default function StoreScreen() {
     setError(null);
 
     try {
-      // Fetch store info
-      const { data: storeData, error: storeError } = await supabase
-        .from('stores')
-        .select('id, name, logo, website')
-        .eq('id', storeId)
-        .single();
-
-      if (storeError) throw storeError;
+      const storeData = await getStoreById(storeId);
       setStore(storeData);
 
-      // Fetch benefits (show all for now - will filter by user wallet later)
-      const { data: benefitsData, error: benefitsError } = await supabase
-        .from('benefits')
-        .select(`
-          id,
-          discount_type,
-          discount_value,
-          description,
-          redemption_type,
-          wallet:wallets(name, type)
-        `)
-        .eq('store_id', storeId)
-        .eq('is_active', true);
-
-      if (benefitsError) throw benefitsError;
+      const benefitsData = await getBenefitsByStore(storeId);
       setBenefits(benefitsData || []);
 
-      // Fetch coupons from influencers
-      const { data: couponsData, error: couponsError } = await supabase
-        .from('coupons')
-        .select(`
-          id,
-          code,
-          discount_type,
-          discount_value,
-          description,
-          redemption_type,
-          expires_at,
-          user:users(id, name, profile_image, is_verified)
-        `)
-        .eq('store_id', storeId)
-        .eq('is_active', true)
-        .gt('expires_at', new Date().toISOString())
-        .order('created_at', { ascending: false });
-
-      if (couponsError) throw couponsError;
+      const couponsData = await getCouponsByStore(storeId);
       setCoupons(couponsData || []);
-
     } catch (err) {
       console.error('Error fetching store data:', err);
       setError('אירעה שגיאה בטעינת הנתונים');
@@ -145,18 +105,7 @@ export default function StoreScreen() {
     if (!selectedCouponId) return;
 
     try {
-      const { error } = await supabase
-        .from('reports')
-        .insert({
-          coupon_id: selectedCouponId,
-          user_id: null, // TODO: Add real user_id with Auth
-          reason,
-          details: details || null,
-          status: 'pending',
-        });
-
-      if (error) throw error;
-
+      await submitReport(selectedCouponId, reason, details || null);
       Alert.alert('תודה!', 'הדיווח נשלח בהצלחה');
       setReportDialogVisible(false);
       setSelectedCouponId(null);

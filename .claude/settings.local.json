@@ -16,7 +16,11 @@
       "Bash(cmd //c \"taskkill /F /PID 24520\")",
       "Bash(npm start)",
       "Bash(npm start:*)",
-      "Bash(wc:*)"
+      "Bash(wc:*)",
+      "Bash(python -m pytest:*)",
+      "Bash(docker compose build:*)",
+      "Bash(source:*)",
+      "Bash(git rm:*)"
     ]
   },
   "enabledPlugins": {
