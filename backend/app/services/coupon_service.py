@@ -44,6 +44,19 @@ async def get_coupons_by_following(user_id: str) -> list[dict]:
     return result.data
 
 
+async def get_coupons_by_user(user_id: str) -> list[dict]:
+    """Get all coupons uploaded by a specific user (influencer)."""
+    result = (
+        get_supabase()
+        .table("coupons")
+        .select(COUPON_SELECT)
+        .eq("user_id", user_id)
+        .order("created_at", desc=True)
+        .execute()
+    )
+    return result.data
+
+
 async def create_coupon(user_id: str, data: dict) -> dict:
     result = (
         get_supabase()

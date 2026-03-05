@@ -7,6 +7,7 @@ from app.services.coupon_service import (
     delete_coupon,
     get_coupons_by_following,
     get_coupons_by_store,
+    get_coupons_by_user,
     is_user_influencer,
     update_coupon,
 )
@@ -17,6 +18,11 @@ router = APIRouter()
 @router.get("/store/{store_id}")
 async def coupons_by_store(store_id: str):
     return await get_coupons_by_store(store_id)
+
+
+@router.get("/me")
+async def my_coupons(current_user: dict = Depends(require_auth)):
+    return await get_coupons_by_user(current_user["id"])
 
 
 @router.get("/following")

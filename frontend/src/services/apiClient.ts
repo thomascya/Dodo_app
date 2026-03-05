@@ -83,6 +83,23 @@ export async function getCouponsByFollowing(): Promise<CouponWithUser[]> {
   return api.get<CouponWithUser[]>('/coupons/following');
 }
 
+export async function getMyCoupons(): Promise<CouponWithUser[]> {
+  return api.get<CouponWithUser[]>('/coupons/me');
+}
+
+// ===== WALLETS =====
+
+export async function getUserWallets(): Promise<Wallet[]> {
+  return api.get<Wallet[]>('/wallets/me');
+}
+
+// ===== FOLLOWS =====
+
+export async function getFollowerCount(userId: string): Promise<number> {
+  const data = await api.get<{ count: number }>(`/follows/${userId}/followers/count`);
+  return data.count;
+}
+
 // ===== REPORTS =====
 
 export async function submitReport(
