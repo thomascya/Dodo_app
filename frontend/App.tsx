@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { View, I18nManager, StyleSheet } from 'react-native';
+import { View, I18nManager, StyleSheet, ActivityIndicator } from 'react-native';
 import { enableScreens } from 'react-native-screens';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -13,7 +13,10 @@ enableScreens(false);
 // Import navigation components AFTER enableScreens(false)
 import { NavigationContainer } from '@react-navigation/native';
 import BottomTabNavigator from './src/navigation/BottomTabNavigator';
+import AuthNavigator from './src/navigation/AuthNavigator';
 import { AuthProvider } from './src/context/AuthContext';
+import { useAuth } from './src/hooks/useAuth';
+import { BRAND_PRIMARY } from './src/constants/colors';
 
 // Force RTL layout for Hebrew
 if (!I18nManager.isRTL) {
@@ -23,6 +26,20 @@ if (!I18nManager.isRTL) {
 
 // Keep splash screen visible while loading fonts
 SplashScreen.preventAutoHideAsync();
+
+function RootNavigator() {
+  const { isAuthenticated, isGuest, isLoading } = useAuth();
+
+  if (isLoading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color={BRAND_PRIMARY} />
+      </View>
+    );
+  }
+
+  return isAuthenticated || isGuest ? <BottomTabNavigator /> : <AuthNavigator />;
+}
 
 export default function App() {
   const [fontsLoaded] = useFonts({
@@ -46,7 +63,7 @@ export default function App() {
         <View style={styles.container} onLayout={onLayoutRootView}>
           <StatusBar style="dark" />
           <NavigationContainer>
-            <BottomTabNavigator />
+            <RootNavigator />
           </NavigationContainer>
         </View>
       </SafeAreaProvider>
@@ -57,5 +74,10 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  loadingContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
