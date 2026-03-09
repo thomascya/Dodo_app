@@ -8,6 +8,7 @@ interface AuthState {
   isLoading: boolean;
   isAuthenticated: boolean;
   isGuest: boolean;
+  needsOnboarding: boolean;
 }
 
 interface AuthContextType extends AuthState {
@@ -15,6 +16,7 @@ interface AuthContextType extends AuthState {
   signInWithEmail: (email: string, password: string) => Promise<void>;
   signUpWithEmail: (email: string, password: string) => Promise<void>;
   continueAsGuest: () => Promise<void>;
+  completeOnboarding: () => void;
   signOut: () => Promise<void>;
 }
 
@@ -26,6 +28,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     isLoading: true,
     isAuthenticated: false,
     isGuest: false,
+    needsOnboarding: false,
   });
 
   // Restore session on app launch
@@ -40,6 +43,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             isLoading: false,
             isAuthenticated: true,
             isGuest: false,
+            needsOnboarding: false,
           });
         } else {
           setState(prev => ({ ...prev, isLoading: false }));
@@ -59,6 +63,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       isLoading: false,
       isAuthenticated: true,
       isGuest,
+      needsOnboarding: false,
     });
   }, []);
 
@@ -83,8 +88,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       '/auth/signup/email',
       { email, password },
     );
-    await handleAuthResponse(data);
-  }, [handleAuthResponse]);
+    await AsyncStorage.setItem('access_token', data.access_token);
+    await AsyncStorage.setItem('refresh_token', data.refresh_token);
+    setState({
+      user: data.user,
+      isLoading: false,
+      isAuthenticated: true,
+      isGuest: false,
+      needsOnboarding: true,
+    });
+  }, []);
 
   const continueAsGuest = useCallback(async () => {
     const data = await api.post<{ access_token: string; refresh_token: string; user: User }>(
@@ -93,6 +106,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     await handleAuthResponse(data, true);
   }, [handleAuthResponse]);
 
+  const completeOnboarding = useCallback(() => {
+    setState(prev => ({ ...prev, needsOnboarding: false }));
+  }, []);
+
   const signOut = useCallback(async () => {
     try {
       await api.post('/auth/signout');
@@ -100,7 +117,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Best-effort sign out
     }
     await AsyncStorage.multiRemove(['access_token', 'refresh_token']);
-    setState({ user: null, isLoading: false, isAuthenticated: false, isGuest: false });
+    setState({ user: null, isLoading: false, isAuthenticated: false, isGuest: false, needsOnboarding: false });
   }, []);
 
   return (
@@ -111,6 +128,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         signInWithEmail,
         signUpWithEmail,
         continueAsGuest,
+        completeOnboarding,
         signOut,
       }}
     >

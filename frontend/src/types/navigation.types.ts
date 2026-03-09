@@ -1,4 +1,3 @@
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { CompositeNavigationProp, RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
@@ -10,7 +9,6 @@ export type AuthStackParamList = {
 };
 
 export type LoginScreenNavigationProp = StackNavigationProp<AuthStackParamList, 'Login'>;
-export type OnboardingScreenNavigationProp = StackNavigationProp<AuthStackParamList, 'Onboarding'>;
 
 // Home Stack (Search tab)
 export type HomeStackParamList = {
@@ -28,14 +26,14 @@ export type BottomTabParamList = {
 };
 
 // Navigation prop types
-export type HomeStackNavigationProp = NativeStackNavigationProp<HomeStackParamList>;
+export type HomeStackNavigationProp = StackNavigationProp<HomeStackParamList>;
 
 export type HomeScreenNavigationProp = CompositeNavigationProp<
-  NativeStackNavigationProp<HomeStackParamList, 'HomeMain'>,
+  StackNavigationProp<HomeStackParamList, 'HomeMain'>,
   BottomTabNavigationProp<BottomTabParamList>
 >;
 
-export type StoreScreenNavigationProp = NativeStackNavigationProp<
+export type StoreScreenNavigationProp = StackNavigationProp<
   HomeStackParamList,
   'Store'
 >;

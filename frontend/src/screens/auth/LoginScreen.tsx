@@ -12,9 +12,7 @@ import {
   Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useNavigation } from '@react-navigation/native';
 import { useAuth } from '../../hooks/useAuth';
-import { LoginScreenNavigationProp } from '../../types/navigation.types';
 import {
   BRAND_PRIMARY,
   BG_PRIMARY,
@@ -29,7 +27,6 @@ import {
 type Tab = 'signin' | 'signup';
 
 export default function LoginScreen() {
-  const navigation = useNavigation<LoginScreenNavigationProp>();
   const { signInWithEmail, signUpWithEmail, continueAsGuest } = useAuth();
 
   const [activeTab, setActiveTab] = useState<Tab>('signin');
@@ -48,19 +45,19 @@ export default function LoginScreen() {
     try {
       if (activeTab === 'signin') {
         await signInWithEmail(email.trim(), password);
-        // AuthContext updates → App.tsx auth gate redirects to tabs
       } else {
         await signUpWithEmail(email.trim(), password);
-        // New user → go to onboarding
-        navigation.replace('Onboarding');
       }
+      // Auth gate in App.tsx handles navigation:
+      // - signin → isAuthenticated=true → shows tabs
+      // - signup → needsOnboarding=true → stays in AuthNavigator, shows Onboarding
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'אירעה שגיאה';
       setError(msg);
     } finally {
       setLoading(false);
     }
-  }, [activeTab, email, password, signInWithEmail, signUpWithEmail, navigation]);
+  }, [activeTab, email, password, signInWithEmail, signUpWithEmail]);
 
   const handleGuest = useCallback(async () => {
     setLoading(true);

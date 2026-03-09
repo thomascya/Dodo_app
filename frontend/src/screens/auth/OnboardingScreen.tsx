@@ -9,9 +9,8 @@ import {
   Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useNavigation } from '@react-navigation/native';
 import { api } from '../../config/api';
-import { OnboardingScreenNavigationProp } from '../../types/navigation.types';
+import { useAuth } from '../../hooks/useAuth';
 import type { Wallet } from '../../types/database.types';
 import {
   BRAND_PRIMARY,
@@ -24,7 +23,7 @@ import {
 } from '../../constants/colors';
 
 export default function OnboardingScreen() {
-  const navigation = useNavigation<OnboardingScreenNavigationProp>();
+  const { completeOnboarding } = useAuth();
 
   const [wallets, setWallets] = useState<Wallet[]>([]);
   const [selected, setSelected] = useState<Set<string>>(new Set());
@@ -58,12 +57,10 @@ export default function OnboardingScreen() {
       Alert.alert('שגיאה', 'לא ניתן לשמור את הארנק, אבל אפשר לעדכן אחר כך מהפרופיל');
     } finally {
       setSaving(false);
-      // Navigate away — App.tsx auth gate will handle showing tabs
-      // since user is already authenticated at this point.
-      // Use reset to clear the auth stack:
-      navigation.reset({ index: 0, routes: [{ name: 'Login' }] });
+      // Clear onboarding flag — App.tsx auth gate will swap to BottomTabNavigator
+      completeOnboarding();
     }
-  }, [selected, navigation]);
+  }, [selected, completeOnboarding]);
 
   const creditCards = wallets.filter(w => w.type === 'credit_card');
   const clubs = wallets.filter(w => w.type === 'club');

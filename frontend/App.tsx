@@ -28,7 +28,7 @@ if (!I18nManager.isRTL) {
 SplashScreen.preventAutoHideAsync();
 
 function RootNavigator() {
-  const { isAuthenticated, isGuest, isLoading } = useAuth();
+  const { isAuthenticated, isGuest, isLoading, needsOnboarding } = useAuth();
 
   if (isLoading) {
     return (
@@ -38,7 +38,10 @@ function RootNavigator() {
     );
   }
 
-  return isAuthenticated || isGuest ? <BottomTabNavigator /> : <AuthNavigator />;
+  // Show auth screens if not authenticated, or if newly signed up and needs onboarding
+  if (!isAuthenticated && !isGuest) return <AuthNavigator />;
+  if (needsOnboarding) return <AuthNavigator />;
+  return <BottomTabNavigator />;
 }
 
 export default function App() {
